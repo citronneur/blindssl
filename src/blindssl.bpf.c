@@ -8,7 +8,7 @@ char LICENSE[] SEC("license") = "Dual BSD/GPL";
 
 /******************************************************************************/
 /*!
- *  \brief  
+ *  \brief  Hook SSL_new to everride the verify mode to SSL_VERIFY_NONE
  */
 
 SEC("uprobe/SSL_new")
@@ -20,7 +20,7 @@ int change_verify_mode(struct pt_regs *ctx) {
     void* ssl_ctx = (int*)PT_REGS_PARM1(ctx);    
     
     int new_verify_mode = 0;
-    bpf_probe_write_user(ssl_ctx+0x160, &new_verify_mode, sizeof(int));
+    bpf_probe_write_user(ssl_ctx+0x160, &new_verify_mode, sizeof(int)); // ssl_ctx->verify_mode = SSL_VERIFY_NONE
     
     return 0;
 };
@@ -34,7 +34,7 @@ int change_verify_result(struct pt_regs *ctx) {
     void* ssl_con = (int*)PT_REGS_PARM1(ctx);
  
     int new_verify_return = 0;
-    bpf_probe_write_user(ssl_con+0x5b0, &new_verify_return, sizeof(int));
+    bpf_probe_write_user(ssl_con+0x5b0, &new_verify_return, sizeof(int)); // ssl_st->verify_result = 0
 
     return 0;
 }
